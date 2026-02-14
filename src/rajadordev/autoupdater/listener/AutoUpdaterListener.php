@@ -22,6 +22,9 @@ namespace rajadordev\autoupdater\listener;
 use pocketmine\event\Listener;
 use rajadordev\autoupdater\api\CheckUpdateScheduler;
 
+/**
+ * I will not use it yet
+ */
 final class AutoUpdaterListener implements Listener
 {
 
