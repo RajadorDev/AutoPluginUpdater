@@ -27,6 +27,7 @@ use rajadordev\autoupdater\api\CheckUpdateScheduler;
 use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
 use rajadordev\autoupdater\api\PluginUpdaterChecker;
 use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
+use rajadordev\autoupdater\utils\AutoUpdaterUtils;
 use SmartCommand\utils\SingletonTrait;
 
 class Loader extends PluginBase
@@ -75,6 +76,17 @@ class Loader extends PluginBase
             )
         );
 
+    }
+
+    public function onDisable()
+    {
+        foreach (Server::getInstance()->getPluginManager()->getPlugins() as $plugin) {
+            if ($result = UpdateCheckResultsManager::getInstance()->getPluginRecord($plugin)) {
+                if ($result->isUpdating() && AutoUpdaterUtils::isPhar($plugin)) {
+                    unlink(AutoUpdaterUtils::getOperationalSystemPharPath($plugin));
+                }
+            }
+        }
     }
 
     public function getBackupDir() : string 

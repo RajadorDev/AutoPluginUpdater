@@ -20,9 +20,7 @@ declare (strict_types=1);
 namespace rajadordev\autoupdater\listener;
 
 use pocketmine\event\Listener;
-use pocketmine\event\plugin\PluginDisableEvent;
 use rajadordev\autoupdater\api\CheckUpdateScheduler;
-use rajadordev\autoupdater\utils\AutoUpdaterUtils;
 
 final class AutoUpdaterListener implements Listener
 {
@@ -37,15 +35,4 @@ final class AutoUpdaterListener implements Listener
         $this->scheduler = $scheduler;
     }
 
-    /**
-     * @priority MONITOR
-     */
-    public function deletePlugin(PluginDisableEvent $event) {
-        $plugin = $event->getPlugin();
-        if ($this->scheduler->isWaitingToDelete($plugin)) {
-            if (AutoUpdaterUtils::isPhar($plugin)) {
-                unlink(AutoUpdaterUtils::getPathFromPlugin($plugin));
-            }
-        }
-    }
 }

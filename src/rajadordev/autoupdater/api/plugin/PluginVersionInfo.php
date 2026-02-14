@@ -45,7 +45,7 @@ class PluginVersionInfo extends DynamicObject
 
     public static function from(Plugin $plugin) : PluginVersionInfo
     {
-        return new self($plugin->getName(), $plugin->getDescription()->getVersion());
+        return new self($plugin->getName(), (string) $plugin->getDescription()->getVersion());
     }
 
     public function getId() : string 

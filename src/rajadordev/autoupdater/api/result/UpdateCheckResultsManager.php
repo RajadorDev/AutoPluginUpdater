@@ -73,7 +73,7 @@ class UpdateCheckResultsManager extends ObjectSerializableList
 
     public function unregisterResults(Plugin $plugin)
     {
-        $pluginId = AutoUpdaterUtils::pluginVersionHash($plugin->getName(), $plugin->getDescription()->getVersion());
+        $pluginId = AutoUpdaterUtils::pluginVersionHash($plugin->getName(), (string) $plugin->getDescription()->getVersion());
         unset($this->updateResults[$pluginId]);
     }
 
@@ -84,7 +84,7 @@ class UpdateCheckResultsManager extends ObjectSerializableList
      */
     public function getPluginRecord(Plugin $plugin) 
     {
-        $pluginId = AutoUpdaterUtils::pluginVersionHash($plugin->getName(), $plugin->getDescription()->getVersion());
+        $pluginId = AutoUpdaterUtils::pluginVersionHash($plugin->getName(), (string) $plugin->getDescription()->getVersion());
         return $this->updateResults[$pluginId] ?? null;
     }
 

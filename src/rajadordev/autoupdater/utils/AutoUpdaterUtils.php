@@ -93,6 +93,13 @@ class AutoUpdaterUtils
         return array_shift($classFile);
     }
 
+    public static function getOperationalSystemPharPath(Plugin $plugin) : string 
+    {
+        $path = self::getPathFromPlugin($plugin);
+        $path = str_replace('phar://', '', $path);
+        return str_replace('/', DIRECTORY_SEPARATOR, $path);
+    }
+
     public static function isPhar(Plugin $plugin) : bool 
     {
         return strpos(self::getPathFromPlugin($plugin), 'phar://') === 0;

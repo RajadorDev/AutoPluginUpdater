@@ -77,7 +77,7 @@ class UpdateCheckResult extends DynamicObject
 
     public function needUpdate(Plugin $plugin, bool $compareMajor) : bool 
     {
-        if ($plugin->getDescription()->getVersion() != $this->checkedVersion->getFullVersion()) {
+        if (((string) $plugin->getDescription()->getVersion()) != $this->checkedVersion->getFullVersion()) {
             throw new InvalidArgumentException("Can't compare different check results!");
         }
 

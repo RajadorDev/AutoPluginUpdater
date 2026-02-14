@@ -102,9 +102,7 @@ class PluginUpdaterChecker
 
     public function getPharRealPath() : string 
     {
-        $path = $this->getPharFile();
-        $path = str_replace('phar://', '', $path);
-        return str_replace('/', DIRECTORY_SEPARATOR, $path);
+        return AutoUpdaterUtils::getOperationalSystemPharPath($this->plugin);
     }
 
     public function canCheckNewUpdates() : bool 
