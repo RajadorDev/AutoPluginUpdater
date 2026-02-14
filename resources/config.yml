@@ -1,0 +1,23 @@
+---
+# Sempre procurar por atualizações ao iniciar o servidor
+check-startup: true
+
+# Ativa/Desativa a atualização automatica dos plugins (caso contrario, você terá que atualiza-los manualmente)
+auto-update-enabled: true
+
+# Ativa/Desativa o backup automatico de versões instaladas antes da atualização
+auto-backup: true
+
+# Sempre reiniciar o servidor quando houver atualizações (caso contrario quando algum plugin for atualizado o plugin será instalado apenas na proxima inicialização)
+restart-when-update: true
+restart-screen-text: "O servidor está sendo atualizado...."
+
+# Ativa/Desativa a atualização para versões em beta (pre-releases)
+allow-pre-releases: true
+
+# Ativa/Desativa a checagem de atualização assincrona (recomendado, caso contrario o servidor ficará inativo até completar a checagem)
+async-check: true
+
+# Ativa/Desativa a atualização para versões que podem quebrar o código de outros sistemas (não recomendado ativar)
+major-updates: false
+...

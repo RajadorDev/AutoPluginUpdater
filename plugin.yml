@@ -1,0 +1,10 @@
+---
+name: AutoPluginUpdater
+description: This system can update plugins automatically
+author: Rajador
+discord: rajadortv
+api: 2.0.0
+depend: [SmartCommand]
+version: 1.0.0 Beta
+main: 'rajadordev\autoupdater\Loader'
+...
