@@ -44,13 +44,16 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
     /**
      * @param PluginVersionInfo $pluginVersion
      * @param GitHubRepository $repository
+     * @param string|null $lastRequestIdentifier
      */
     public function __construct(
         PluginVersionInfo $pluginVersion,
-        GitHubRepository $repository
+        GitHubRepository $repository,
+        $lastRequestIdentifier = null
     )
     {
         $this->repository = $repository;
+        $this->lastRequestIdentifier = $lastRequestIdentifier;
         parent::__construct($pluginVersion);
     }
 
