@@ -47,15 +47,17 @@ class Loader extends PluginBase
         $backupDir = $this->getBackupDir();
         $resultsDir = $this->getResultsDir();
 
-        AutoUpdaterSettings::init($this);
-        UpdateCheckResultsManager::init($this);
-        CheckUpdateScheduler::init();
-
         foreach ([$dir, $apiDir, $backupDir, $resultsDir] as $systemDir) {
             if (!file_exists($systemDir)) {
                 mkdir($systemDir);
             }
         }
+
+        AutoUpdaterSettings::init($this);
+        UpdateCheckResultsManager::init($this);
+        CheckUpdateScheduler::init();
+
+        
 
         /**
          * Here i will update SmartCommand framework, cause in the future i will create commands using its system
