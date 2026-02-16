@@ -97,6 +97,7 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
         curl_setopt($curl, CURLOPT_TIMEOUT, 15);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_HEADERFUNCTION, static function ($resource, $headerLine) use (&$outHeaders) : int {
             $length = strlen($headerLine);
             $headerInfo = explode(':', $headerLine, 2);
@@ -142,7 +143,7 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
             }
         }
 
-        $requestOutId = $outHeaders['ETag'];
+        $requestOutId = trim($outHeaders['ETag']);
 
         $this->lastRequestIdentifier = $requestOutId;
 
