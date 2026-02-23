@@ -91,6 +91,8 @@ class Loader extends PluginBase
                 }
             }
         }
+
+        UpdateCheckResultsManager::getInstance()->save();
     }
 
     public function getBackupDir() : string 

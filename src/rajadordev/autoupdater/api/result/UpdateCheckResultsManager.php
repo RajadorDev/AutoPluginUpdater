@@ -123,6 +123,8 @@ class UpdateCheckResultsManager extends ObjectSerializableList
 
         if ($mustToSave) {
             $this->save();
+        } else {
+            $logger->info("Nothing to be checked from the last restart");
         }
     }
 
