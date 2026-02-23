@@ -5,6 +5,6 @@ author: Rajador
 discord: rajadortv
 api: 2.0.0
 depend: [SmartCommand]
-version: 1.0.2
+version: 1.1.0
 main: 'rajadordev\autoupdater\Loader'
 ...
