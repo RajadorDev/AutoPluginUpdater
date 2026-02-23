@@ -39,8 +39,8 @@ class Logger
         $this->pluginLogger = $pluginLogger;
         if (!file_exists($filePath)) {
             file_put_contents($filePath, '');
+            $this->info("Log file created in $filePath");
         }
-        $this->info("Log file created in $filePath");
     }
 
     public function currentDate() : string 
