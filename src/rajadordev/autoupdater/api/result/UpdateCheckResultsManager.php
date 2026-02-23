@@ -22,12 +22,14 @@ namespace rajadordev\autoupdater\api\result;
 use InvalidArgumentException;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
+use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\Loader;
 use rajadordev\autoupdater\utils\AutoUpdaterUtils;
 use rajadordev\autoupdater\utils\DynamicObject;
 use rajadordev\autoupdater\utils\ObjectSerializableList;
 use SmartCommand\utils\SingletonTrait;
+use Throwable;
 
 class UpdateCheckResultsManager extends ObjectSerializableList
 {
@@ -105,12 +107,16 @@ class UpdateCheckResultsManager extends ObjectSerializableList
         $mustToSave = false;
         foreach ($this->updateResults as $result) {
             if ($result->isUpdating()) {
-                if ($plugin = Server::getInstance()->getPluginManager()->getPlugin($result->getCheckedVersion()->getPluginName())) {
-                    if (!$result->getLatestVersion()->getVersion()->isNewestThan(PluginVersionInfo::from($plugin), true)) {
-                        $mustToSave = true;
-                        $result->setUpdating(false);
-                        $logger->notice("Plugin {$plugin->getName()} updated sucefully: \n{$result->getLatestVersion()->getVersion()->infoText()}\n ");
+                try {
+                    if ($plugin = Server::getInstance()->getPluginManager()->getPlugin($result->getCheckedVersion()->getPluginName())) {
+                        if (!$result->getLatestVersion()->getVersion()->isNewestThan(PluginVersionInfo::from($plugin), true)) {
+                            $mustToSave = true;
+                            $result->setUpdating(false);
+                            AutoPluginUpdaterLogger::getInstance()->notice("Plugin {$plugin->getName()} updated sucefully: \n{$result->getLatestVersion()->getVersion()->infoText()}\n ");
+                        }
                     }
+                } catch (Throwable $error) {
+                    AutoPluginUpdaterLogger::getInstance()->error('Error while check updates from the last restart of plugin ' . $result->getCheckedVersion()->getPluginName() . ': ' . ((string) $error));
                 }
             }
         }

@@ -69,7 +69,8 @@ class GitHubReleaseInfo extends PluginVersionInfo
      */
     public function findPharAsset()
     {
-        foreach ($this->getExtraDataValue('assets', []) as $assetData) {
+        $allAssets = $this->getExtraDataValue('assets', []);
+        foreach ($allAssets as &$assetData) {
             $fileName = $assetData['name'];
             if (strpos($fileName, '.phar') !== false) {
                 $url = $assetData['browser_download_url'];
@@ -80,7 +81,7 @@ class GitHubReleaseInfo extends PluginVersionInfo
                     $assetData['download_count']++;
                 }
 
-                $this->setExtraDataValue('assets', $assetData);
+                $this->setExtraDataValue('assets', $allAssets);
 
                 return new SerializedGitHubPlugin($fileName, $fileData, $this);
             }
