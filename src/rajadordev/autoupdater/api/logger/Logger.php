@@ -35,6 +35,7 @@ class Logger
         PluginLogger $pluginLogger
     )
     {
+        $this->filePath = $filePath;
         $this->pluginLogger = $pluginLogger;
         if (!file_exists($filePath)) {
             file_put_contents($filePath, '');
