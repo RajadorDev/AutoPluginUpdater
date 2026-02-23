@@ -167,6 +167,7 @@ class CheckUpdateScheduler
         $shouldSaveResults = false;
         $makeBackup = $this->settings->isAutoBackupEnabled();
         $pluginsUpdated = [];
+        $someUpdateFound = false;
         foreach ($results as $pluginIdentifier => $resultData) {
             if (is_string($resultData)) {
                 $this->autoUpdaterLogger->error("Error while check updates to {$pluginIdentifier}: {$resultData}");
@@ -184,6 +185,9 @@ class CheckUpdateScheduler
                 $shouldSaveResults = true;
                 $api->onPostCheck($updater);
                 if ($result->needUpdate($updater->getPlugin(), $compareMajor)) {
+                    
+                    $someUpdateFound = true;
+
                     if ($makeBackup) {
                         $this->autoUpdaterLogger->info("Creating backup for {$pluginIdentifier} plugin...");
                         $path = $updater->backup($this->plugin->getBackupDir());
@@ -223,6 +227,8 @@ class CheckUpdateScheduler
                 }
                 Server::getInstance()->shutdown();
             }
+        } else if (!$someUpdateFound) {
+            $this->autoUpdaterLogger->info("Everything is up to date.");
         }
     }
 

@@ -74,8 +74,14 @@ class GitHubReleaseInfo extends PluginVersionInfo
             if (strpos($fileName, '.phar') !== false) {
                 $url = $assetData['browser_download_url'];
                 $fileData = self::fetchAssetFile($url);
+
                 /** Here i will add a download count cause i'll not fetch it again */
-                $assetData['download_count']++;
+                if (isset($assetData['download_count'])) {
+                    $assetData['download_count']++;
+                }
+
+                $this->setExtraDataValue('assets', $assetData);
+
                 return new SerializedGitHubPlugin($fileName, $fileData, $this);
             }
         }
