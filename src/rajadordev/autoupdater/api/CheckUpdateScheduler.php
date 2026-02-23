@@ -29,6 +29,7 @@ use rajadordev\autoupdater\utils\ClosureTask;
 use rajadordev\autoupdater\utils\DynamicObject;
 use rajadordev\autoupdater\api\plugin\PluginUpdaterAPI;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
+use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
 use rajadordev\autoupdater\api\result\UpdateCheckResult;
 use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
 use rajadordev\autoupdater\api\task\AsyncUpdatesCheckTask;
@@ -55,6 +56,9 @@ class CheckUpdateScheduler
     /** @var PluginLogger */
     protected $logger;
 
+    /** @var AutoPluginUpdaterLogger */
+    protected $autoUpdaterLogger;
+
     /** @var Loader */
     protected $plugin;
 
@@ -69,6 +73,7 @@ class CheckUpdateScheduler
         $this->settings = AutoUpdaterSettings::getInstance();
         $this->plugin = Loader::getInstance();
         $this->logger = $this->plugin->getLogger();
+        $this->autoUpdaterLogger = AutoPluginUpdaterLogger::getInstance();
 
         $this->plugin->registerListener(new AutoUpdaterListener($this));
 
@@ -137,7 +142,7 @@ class CheckUpdateScheduler
             function (PluginUpdaterChecker $checker) use ($alertSkips) : bool {
                 if (!$checker->isPhar()) {
                     if ($alertSkips) {
-                        $this->logger->alert("Can't check updates of {$checker->getPlugin()->getName()}: Plugin isn't phar format!");
+                        $this->autoUpdaterLogger->alert("Can't check updates of {$checker->getPlugin()->getName()}: Plugin isn't phar format!");
                     }
                     return false;
                 } else if (!$checker->canCheckNewUpdates()) {
@@ -164,7 +169,7 @@ class CheckUpdateScheduler
         $pluginsUpdated = [];
         foreach ($results as $pluginIdentifier => $resultData) {
             if (is_string($resultData)) {
-                $this->logger->error("Error while check updates to {$pluginIdentifier}: {$resultData}");
+                $this->autoUpdaterLogger->error("Error while check updates to {$pluginIdentifier}: {$resultData}");
                 continue;
             }
 
@@ -180,26 +185,26 @@ class CheckUpdateScheduler
                 $api->onPostCheck($updater);
                 if ($result->needUpdate($updater->getPlugin(), $compareMajor)) {
                     if ($makeBackup) {
-                        $this->logger->info("Creating backup for {$pluginIdentifier} plugin...");
+                        $this->autoUpdaterLogger->info("Creating backup for {$pluginIdentifier} plugin...");
                         $path = $updater->backup($this->plugin->getBackupDir());
-                        $this->logger->notice("Backup created in {$path}");
+                        $this->autoUpdaterLogger->notice("Backup created in {$path}");
                     }
 
                     if ($this->settings->isAutoUpdateEnabled()) 
                     {
                         $latest = $result->getLatestVersion();
-                        $this->logger->notice("Installing latest {$updater->getPluginName()} version...");
+                        $this->autoUpdaterLogger->notice("Installing latest {$updater->getPluginName()} version...");
                         $latest->saveAt(Server::getInstance()->getDataPath() . 'plugins' . DIRECTORY_SEPARATOR);
-                        $this->logger->notice("Plugin {$latest->getFileName()} installed sucefully");
+                        $this->autoUpdaterLogger->notice("Plugin {$latest->getFileName()} installed sucefully");
                         $result->setUpdating(true);
                         $pluginsUpdated[] = $result;
                     } else {
-                        $this->logger->notice("New {$updater->getPluginName()} version found: \n{$latest->getVersion()->infoText()}\n ");
+                        $this->autoUpdaterLogger->notice("New {$updater->getPluginName()} version found: \n{$latest->getVersion()->infoText()}\n ");
                     }
 
                 }
             } else {
-                $this->logger->error("Plugin {$pluginIdentifier} does not found!");
+                $this->autoUpdaterLogger->error("Plugin {$pluginIdentifier} does not found!");
             }
         }
 
@@ -211,7 +216,7 @@ class CheckUpdateScheduler
         if ($updateCount > 0) {
             $this->logger->info("{$updateCount} plugins was updated.");
             if ($this->settings->isAutoRestartWhenUpdated()) {
-                $this->logger->notice("Restarting to install {$updateCount} plugins...");
+                $this->autoUpdaterLogger->notice("Restarting to install {$updateCount} plugins...");
                 $text = $this->settings->getConfigValue('restart-screen-text', 'Updating...');
                 foreach (Server::getInstance()->getOnlinePlayers() as $player) {
                     $player->close('', $text);

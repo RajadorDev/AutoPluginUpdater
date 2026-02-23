@@ -24,6 +24,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use rajadordev\autoupdater\api\AutoUpdaterSettings;
 use rajadordev\autoupdater\api\CheckUpdateScheduler;
+use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
 use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
 use rajadordev\autoupdater\api\PluginUpdaterChecker;
 use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
@@ -53,6 +54,7 @@ class Loader extends PluginBase
             }
         }
 
+        AutoPluginUpdaterLogger::init($this);
         AutoUpdaterSettings::init($this);
         UpdateCheckResultsManager::init($this);
         CheckUpdateScheduler::init();
