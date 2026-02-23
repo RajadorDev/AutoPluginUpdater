@@ -52,6 +52,17 @@ class GitHubReleaseInfo extends PluginVersionInfo
     }
 
     /**
+     * @param string $id
+     * @param mixed $value
+     * @return GitHubReleaseInfo
+     */
+    public function setExtraDataValue(string $id, $value)
+    {
+        $this->extraData[$id] = $value;
+        return $this;
+    }
+
+    /**
      * Returns the plugin serialized
      *
      * @return SerializedGitHubPlugin|null
@@ -63,6 +74,8 @@ class GitHubReleaseInfo extends PluginVersionInfo
             if (strpos($fileName, '.phar') !== false) {
                 $url = $assetData['browser_download_url'];
                 $fileData = self::fetchAssetFile($url);
+                /** Here i will add a download count cause i'll not fetch it again */
+                $assetData['download_count']++;
                 return new SerializedGitHubPlugin($fileName, $fileData, $this);
             }
         }
