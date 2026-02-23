@@ -55,7 +55,7 @@ class Logger
         foreach (explode("\n", $text) as $textLine) {
             $totalText .= $textLine . "\n";
         }
-        $this->write($totalText);
+        $this->write($prefix . $totalText);
     }
 
     public function info(string $info, bool $sendToConsole = true)
