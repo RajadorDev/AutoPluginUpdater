@@ -174,41 +174,45 @@ class CheckUpdateScheduler
                 continue;
             }
 
-            $api = $resultData['api'];
-            /** @var UpdateCheckResult */
-            $result = $resultData['result'];
+            try {
+                $api = $resultData['api'];
+                /** @var UpdateCheckResult */
+                $result = $resultData['result'];
 
-            if ($updater = $this->getUpdater($pluginIdentifier)) {
-                $plugin = $updater->getPlugin();
-                $resultsManager->unregisterResults($plugin);
-                $resultsManager->registerResult($result, false);
-                $shouldSaveResults = true;
-                $api->onPostCheck($updater);
-                if ($result->needUpdate($updater->getPlugin(), $compareMajor)) {
-                    
-                    $someUpdateFound = true;
+                if ($updater = $this->getUpdater($pluginIdentifier)) {
+                    $plugin = $updater->getPlugin();
+                    $resultsManager->unregisterResults($plugin);
+                    $resultsManager->registerResult($result, false);
+                    $shouldSaveResults = true;
+                    $api->onPostCheck($updater);
+                    if ($result->needUpdate($updater->getPlugin(), $compareMajor)) {
+                        
+                        $someUpdateFound = true;
 
-                    if ($makeBackup) {
-                        $this->autoUpdaterLogger->info("Creating backup for {$pluginIdentifier} plugin...");
-                        $path = $updater->backup($this->plugin->getBackupDir());
-                        $this->autoUpdaterLogger->notice("Backup created in {$path}");
+                        if ($makeBackup) {
+                            $this->autoUpdaterLogger->info("Creating backup for {$pluginIdentifier} plugin...");
+                            $path = $updater->backup($this->plugin->getBackupDir());
+                            $this->autoUpdaterLogger->notice("Backup created in {$path}");
+                        }
+
+                        if ($this->settings->isAutoUpdateEnabled()) 
+                        {
+                            $latest = $result->getLatestVersion();
+                            $this->autoUpdaterLogger->notice("Installing latest {$updater->getPluginName()} version...");
+                            $latest->saveAt(Server::getInstance()->getDataPath() . 'plugins' . DIRECTORY_SEPARATOR);
+                            $this->autoUpdaterLogger->notice("Plugin {$latest->getFileName()} installed sucefully");
+                            $result->setUpdating(true);
+                            $pluginsUpdated[] = $result;
+                        } else {
+                            $this->autoUpdaterLogger->notice("New {$updater->getPluginName()} version found: \n{$latest->getVersion()->infoText()}\n ");
+                        }
+
                     }
-
-                    if ($this->settings->isAutoUpdateEnabled()) 
-                    {
-                        $latest = $result->getLatestVersion();
-                        $this->autoUpdaterLogger->notice("Installing latest {$updater->getPluginName()} version...");
-                        $latest->saveAt(Server::getInstance()->getDataPath() . 'plugins' . DIRECTORY_SEPARATOR);
-                        $this->autoUpdaterLogger->notice("Plugin {$latest->getFileName()} installed sucefully");
-                        $result->setUpdating(true);
-                        $pluginsUpdated[] = $result;
-                    } else {
-                        $this->autoUpdaterLogger->notice("New {$updater->getPluginName()} version found: \n{$latest->getVersion()->infoText()}\n ");
-                    }
-
+                } else {
+                    $this->autoUpdaterLogger->error("Plugin {$pluginIdentifier} does not found!");
                 }
-            } else {
-                $this->autoUpdaterLogger->error("Plugin {$pluginIdentifier} does not found!");
+            } catch (Throwable $error) {
+                $this->autoUpdaterLogger->error("Error while system process check results: " . ((string) $error));
             }
         }
 
