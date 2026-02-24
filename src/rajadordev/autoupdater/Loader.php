@@ -33,6 +33,10 @@ use SmartCommand\utils\SingletonTrait;
 
 class Loader extends PluginBase
 {
+
+    const PREFIX = '§b§lA§9P§dU  §r§7';
+
+    const BIG_PREFIX = " \n§8----=====(§bAuto§9Plugin§dUpdater§8)=====----\n";
  
     use SingletonTrait;
  
