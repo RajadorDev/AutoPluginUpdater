@@ -28,7 +28,10 @@ use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
 use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
 use rajadordev\autoupdater\api\PluginUpdaterChecker;
 use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
+use rajadordev\autoupdater\command\AutoPluginUpdaterCommand;
 use rajadordev\autoupdater\utils\AutoUpdaterUtils;
+use SmartCommand\api\SmartCommandAPI;
+use SmartCommand\message\DefaultMessages;
 use SmartCommand\utils\SingletonTrait;
 
 class Loader extends PluginBase
@@ -59,6 +62,13 @@ class Loader extends PluginBase
         }
 
         AutoPluginUpdaterLogger::init($this);
+
+        if (GitHubPluginUpdaterAPI::loadGitHubToken()) {
+            AutoPluginUpdaterLogger::getInstance()->info("GitHub token loaded successfully");
+        } else {
+            AutoPluginUpdaterLogger::getInstance()->info("GitHub token does not found, the update check can fail by rate-limit");
+        }
+
         AutoUpdaterSettings::init($this);
         UpdateCheckResultsManager::init($this);
         CheckUpdateScheduler::init();
@@ -83,6 +93,14 @@ class Loader extends PluginBase
                 GitHubPluginUpdaterAPI::createFromPlugin($this, 'RajadorDev', 'AutoPluginUpdater')
             )
         );
+
+        SmartCommandAPI::register('autopluginupdater', new AutoPluginUpdaterCommand(
+            'autopluginupdater',
+            'AutoPluginUpdater main command',
+            self::PREFIX,
+            ['apu'],
+            DefaultMessages::ENGLISH()
+        ));
 
     }
 

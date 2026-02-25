@@ -20,13 +20,18 @@ declare (strict_types=1);
 namespace rajadordev\autoupdater\api;
 
 use pocketmine\plugin\Plugin;
+use pocketmine\utils\TextFormat;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
+use rajadordev\autoupdater\api\history\record\PluginUpdatesList;
+use rajadordev\autoupdater\api\history\UpdatesHistoryManager;
 use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
 use rajadordev\autoupdater\api\plugin\PluginUpdaterAPI;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\api\result\UpdateCheckResult;
+use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
 use rajadordev\autoupdater\Loader;
 use rajadordev\autoupdater\utils\AutoUpdaterUtils;
+use SmartCommand\utils\CommandUtils;
 
 class PluginUpdaterChecker 
 {
@@ -166,6 +171,64 @@ class PluginUpdaterChecker
             $content = file_get_contents($path);
             $this->extraRecords = json_decode($content, true);
         }
+    }
+
+    public function infoText() : string 
+    {
+        return Loader::BIG_PREFIX . CommandUtils::textLinesWithPrefix(
+            $this->info()
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function info() : array
+    {
+        $plugin = $this->plugin;
+        $pluginVersion = $this->getVersion();
+        $record = UpdateCheckResultsManager::getInstance()->getPluginRecord($plugin);
+        $latest = true;
+        $latestVersionInfo = $pluginVersion;
+
+        if ($record) {
+            $latestVersion = $record->getLatestVersion();
+            if (!is_null($latestVersion) && $latestVersion->getVersion()->isNewestThan($pluginVersion, true)) {
+                $latest = false;
+                $latestVersionInfo = $latestVersion->getVersion();
+            }
+        }
+
+        $latestInfo = '§8[' . ($latest ? (TextFormat::GREEN . 'Latest') : TextFormat::GOLD . 'Outdated') . '§8]';
+
+        $updates = UpdatesHistoryManager::getInstance()->getOrCreateUpdatesList($plugin);
+
+        $latestUpdate = $updates->getUpdateInfo($pluginVersion);
+
+        $texts = [
+            '',
+            '§7Version: §b' . $pluginVersion->getCleanVersion() . ' ' . $latestInfo,
+            '',
+            '§7Updates: §d' . $updates->getUpdatesCount(),
+            '',
+            '§7Latest version: §d' . $latestVersionInfo->getFullVersion(),
+            '',
+            '§7Latest update:' . ($latestUpdate == null ? '§c No information' : '')
+        ];
+
+        if ($latestUpdate) {
+            $texts = array_merge(
+                $texts,
+                array_map(
+                    static function (string $textLine) : string {
+                        return '  ' . $textLine;
+                    },
+                    $latestUpdate->info()
+                )
+            );
+        }
+        $texts[] = '';
+        return $texts;
     }
     
     /**

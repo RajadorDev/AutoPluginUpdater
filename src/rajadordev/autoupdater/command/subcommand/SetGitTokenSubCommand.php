@@ -1,0 +1,55 @@
+<?php
+
+declare (strict_types=1);
+ 
+/***
+ *   
+ * Rajador Developer
+ * 
+ * ▒█▀▀█ ░█▀▀█ ░░░▒█ ░█▀▀█ ▒█▀▀▄ ▒█▀▀▀█ ▒█▀▀█ 
+ * ▒█▄▄▀ ▒█▄▄█ ░▄░▒█ ▒█▄▄█ ▒█░▒█ ▒█░░▒█ ▒█▄▄▀ 
+ * ▒█░▒█ ▒█░▒█ ▒█▄▄█ ▒█░▒█ ▒█▄▄▀ ▒█▄▄▄█ ▒█░▒█
+ * 
+ * GitHub: https://github.com/rajadordev
+ * 
+ * Discord: rajadortv
+ * 
+ * 
+**/ 
+
+namespace rajadordev\autoupdater\command\subcommand;
+
+use pocketmine\command\CommandSender;
+use pocketmine\utils\TextFormat;
+use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
+use rajadordev\autoupdater\Loader;
+use SmartCommand\command\argument\StringArgument;
+use SmartCommand\command\CommandArguments;
+use SmartCommand\command\subcommand\BaseSubCommand;
+
+class SetGitTokenSubCommand extends BaseSubCommand
+{
+
+    protected static function getRuntimePermission(): string
+    {
+        return 'apu.command.setgittoken';
+    }
+
+    protected function prepare()
+    {
+        $this->registerArgument(0, new StringArgument('token'));
+    }
+
+    protected function onRun(CommandSender $sender, string $commandLabel, string $subcommandLabel, CommandArguments $args)
+    {
+        $token = $args->getString('token');
+        if (count($args->raw()) > 1) {
+            $sender->sendMessage(Loader::PREFIX . "§cInvalid §bGitHub §ctoken!");
+            return;
+        }
+
+        GitHubPluginUpdaterAPI::setGitHubToken($token);
+
+        $sender->sendMessage(Loader::PREFIX . "§bGitHub §7token updated §asuccessfully§7!");
+    }
+}
