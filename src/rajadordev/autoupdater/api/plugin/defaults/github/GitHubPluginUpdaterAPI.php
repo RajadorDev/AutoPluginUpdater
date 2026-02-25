@@ -163,12 +163,16 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 
     public function onPrepareCheck(PluginUpdaterChecker $checker)
     {
-        $this->lastRequestIdentifier = $checker->getExtraApiValue(self::DATA_GITHUB_LAST_REQUEST);
+        /** @var GitHubReleaseInfo */
+        $version = $this->getCurrentVersion();
+        $this->lastRequestIdentifier = $checker->getExtraApiValue($version->getLastRequestId());
     }
 
     public function onPostCheck(PluginUpdaterChecker $api)
     {
-        $api->setExtraApiValue(self::DATA_GITHUB_LAST_REQUEST, $this->lastRequestIdentifier, true);
+        /** @var GitHubReleaseInfo */
+        $version = $this->getCurrentVersion();
+        $api->setExtraApiValue($version->getLastRequestId(), $this->lastRequestIdentifier, true);
     }
 
     protected function serializeExtraData(): array

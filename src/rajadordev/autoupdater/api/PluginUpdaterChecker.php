@@ -21,6 +21,7 @@ namespace rajadordev\autoupdater\api;
 
 use pocketmine\plugin\Plugin;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
+use rajadordev\autoupdater\api\plugin\defaults\github\GitHubPluginUpdaterAPI;
 use rajadordev\autoupdater\api\plugin\PluginUpdaterAPI;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\api\result\UpdateCheckResult;
@@ -134,6 +135,16 @@ class PluginUpdaterChecker
     {
         $this->extraRecords = $data;
         $this->saveExtraRecords();
+    }
+
+    public function unsetExtraApiValue(string $id, bool $save = true)
+    {
+        if (isset($this->extraRecords[$id])) {
+            unset($this->extraRecords[$id]);
+            if ($save) {
+                $this->saveExtraRecords();
+            }
+        }
     }
 
     public function backup(string $dir) : string
