@@ -112,7 +112,7 @@ class UpdateCheckResultsManager extends ObjectSerializableList
                         if (!$result->getLatestVersion()->getVersion()->isNewestThan(PluginVersionInfo::from($plugin), true)) {
                             $mustToSave = true;
                             $result->setUpdating(false);
-                            AutoPluginUpdaterLogger::getInstance()->notice("Plugin {$plugin->getName()} updated sucefully: \n{$result->getLatestVersion()->getVersion()->infoText()}\n ");
+                            AutoPluginUpdaterLogger::getInstance()->notice("Plugin {$plugin->getName()} updated successfully: \n{$result->getLatestVersion()->getVersion()->infoText()}\n ");
                         }
                     }
                 } catch (Throwable $error) {

@@ -30,6 +30,7 @@ use rajadordev\autoupdater\utils\DynamicObject;
 use rajadordev\autoupdater\api\plugin\PluginUpdaterAPI;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
 use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
+use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\api\result\UpdateCheckResult;
 use rajadordev\autoupdater\api\result\UpdateCheckResultsManager;
 use rajadordev\autoupdater\api\task\AsyncUpdatesCheckTask;
@@ -116,6 +117,11 @@ class CheckUpdateScheduler
         }
     }
 
+    public function getPluginUpdater(Plugin $plugin)
+    {
+        return $this->getUpdater(PluginVersionInfo::from($plugin)->getId());
+    }
+
     public function getUpdater(string $identifier)
     {
         return $this->scheduled[$identifier] ?? null;
@@ -200,7 +206,7 @@ class CheckUpdateScheduler
                             $latest = $result->getLatestVersion();
                             $this->autoUpdaterLogger->notice("Installing latest {$updater->getPluginName()} version...");
                             $latest->saveAt(Server::getInstance()->getDataPath() . 'plugins' . DIRECTORY_SEPARATOR);
-                            $this->autoUpdaterLogger->notice("Plugin {$latest->getFileName()} installed sucefully");
+                            $this->autoUpdaterLogger->notice("Plugin {$latest->getFileName()} installed successfully");
                             $result->setUpdating(true);
                             $pluginsUpdated[] = $result;
                         } else {

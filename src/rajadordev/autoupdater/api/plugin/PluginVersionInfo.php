@@ -98,6 +98,11 @@ class PluginVersionInfo extends DynamicObject
         return 'Version: ' . $this->getPluginName() . ' ' . $this->getFullVersion();
     }
 
+    public function equals(PluginVersionInfo $info) : bool 
+    {
+        return $info->getId() == $this->getId();
+    }
+
     protected function serializeExtraData(): array
     {
         return [

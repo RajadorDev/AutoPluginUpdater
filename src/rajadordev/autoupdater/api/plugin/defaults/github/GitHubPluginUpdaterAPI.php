@@ -22,11 +22,14 @@ namespace rajadordev\autoupdater\api\plugin\defaults\github;
 use Exception;
 use pocketmine\plugin\Plugin;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
+use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
 use rajadordev\autoupdater\api\plugin\PluginUpdaterAPI;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\api\PluginUpdaterChecker;
 use rajadordev\autoupdater\api\result\UpdateCheckResult;
+use rajadordev\autoupdater\Loader;
 use rajadordev\autoupdater\utils\DynamicObject;
+use Throwable;
 
 class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 {
@@ -35,25 +38,77 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 
     const DATA_REPOSITORY = 'repository';
 
+    const DATA_GIT_TOKEN = 'github_token';
+
+    /** @var string|null */
+    private static $gitHubToken = null;
+
     /** @var GitHubRepository */
     protected $repository;
 
     /** @var string|null Used to ignore github rate-limit */
     protected $lastRequestIdentifier = null;
 
+    /** @var string|null */
+    private $threadSafeGitToken;
+
+    public static function setGitHubToken(string $newToken)
+    {
+        self::$gitHubToken = $newToken;
+        $showCount = 5;
+        $demonstration = substr($newToken, 0, $showCount) . str_repeat('*', strlen($newToken) - $showCount);
+        self::saveGitToken();
+        Loader::getInstance()->getLogger()->info("GitHub token setted as \"$demonstration\"");
+    }
+
+    public static function deleteGitHubToken()
+    {
+        self::$gitHubToken = null;
+        self::saveGitToken();
+    }
+
+    public static function loadGitHubToken() : bool 
+    {
+        $filePath = Loader::getInstance()->getPluginsApiDir() . 'github.token';
+        if (file_exists($filePath)) {
+            try {
+                $token = base64_decode(file_get_contents($filePath));
+                self::$gitHubToken = $token;
+                return true;
+            } catch (Throwable $error) {
+                AutoPluginUpdaterLogger::getInstance()->error('Error while trying to load github token: ' . (string) $error);
+            }
+        }
+        return false;
+    }
+
+    public static function saveGitToken()
+    {
+        $token = self::$gitHubToken;
+        $filePath = Loader::getInstance()->getPluginsApiDir() . 'github.token';
+        if (is_string($token)) {
+            file_put_contents($filePath, base64_encode($token));
+        } else if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
+
     /**
      * @param PluginVersionInfo $pluginVersion
      * @param GitHubRepository $repository
      * @param string|null $lastRequestIdentifier
+     * @param string|null $apiToken
      */
     public function __construct(
         PluginVersionInfo $pluginVersion,
         GitHubRepository $repository,
-        $lastRequestIdentifier = null
+        $lastRequestIdentifier = null,
+        $apiToken = null
     )
     {
         $this->repository = $repository;
         $this->lastRequestIdentifier = $lastRequestIdentifier;
+        $this->threadSafeGitToken = $apiToken;
         parent::__construct($pluginVersion);
     }
 
@@ -166,6 +221,7 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
         /** @var GitHubReleaseInfo */
         $version = $this->getCurrentVersion();
         $this->lastRequestIdentifier = $checker->getExtraApiValue($version->getLastRequestId());
+        $this->threadSafeGitToken = self::$gitHubToken;
     }
 
     public function onPostCheck(PluginUpdaterChecker $api)
@@ -179,7 +235,8 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
     {
         return [
             self::DATA_REPOSITORY => $this->repository->jsonSerialize(),
-            self::DATA_GITHUB_LAST_REQUEST => $this->lastRequestIdentifier
+            self::DATA_GITHUB_LAST_REQUEST => $this->lastRequestIdentifier,
+            self::DATA_GIT_TOKEN => $this->threadSafeGitToken
         ];
     }
 
@@ -188,7 +245,8 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
         return new self(
             DynamicObject::globalUnserialize($data[self::DATA_VERSION]),
             DynamicObject::globalUnserialize($data[self::DATA_REPOSITORY]),
-            $data[self::DATA_GITHUB_LAST_REQUEST]
+            $data[self::DATA_GITHUB_LAST_REQUEST],
+            $data[self::DATA_GIT_TOKEN]
         );
     }
 }

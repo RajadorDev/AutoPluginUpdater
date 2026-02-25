@@ -68,6 +68,19 @@ class UpdateRecord extends DynamicObject
         return date($format, (int) $this->whenUpdated);
     }
 
+    /**
+     * @return string[]
+     */
+    public function info() : array 
+    {
+        return [
+            '',
+            '§7Update: §e' . $this->getOldVersion()->getCleanVersion() . ' §8-> §a' . $this->getNewVersion()->getCleanVersion(),
+            '',
+            '§7Updated at: §9' . $this->getUpdateTimestampFormatted()
+        ];
+    }
+
     protected function serializeExtraData(): array
     {
         return [

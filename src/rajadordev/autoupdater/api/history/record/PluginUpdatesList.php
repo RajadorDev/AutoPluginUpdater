@@ -19,6 +19,7 @@ declare (strict_types=1);
 
 namespace rajadordev\autoupdater\api\history\record;
 
+use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\utils\DynamicObject;
 
 class PluginUpdatesList extends DynamicObject
@@ -66,6 +67,16 @@ class PluginUpdatesList extends DynamicObject
     public function push(UpdateRecord $record)
     {
         $this->records[] = $record;
+    }
+
+    public function getUpdateInfo(PluginVersionInfo $version)
+    {
+        foreach ($this->records as $record) {
+            if ($record->getNewVersion()->equals($version)) {
+                return $record;
+            }
+        }
+        return null;
     }
 
     protected function serializeExtraData(): array
