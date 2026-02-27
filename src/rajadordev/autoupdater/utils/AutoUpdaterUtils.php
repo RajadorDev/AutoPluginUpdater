@@ -40,7 +40,7 @@ class AutoUpdaterUtils
         $clearedVersionChars = '';
         foreach (str_split($version) as $char) {
             if (strpos(self::CLEARED_VERSION_CHARS, $char) !== false) {
-                $clearedVersionChars .= $clearedVersionChars;
+                $clearedVersionChars .= $char;
             }
         }
         return $clearedVersionChars;
