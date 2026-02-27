@@ -23,6 +23,7 @@ use InvalidArgumentException;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
 use rajadordev\autoupdater\api\exception\NoUpdatesFoundException;
+use rajadordev\autoupdater\api\history\record\UpdateRecord;
 use rajadordev\autoupdater\utils\DynamicObject;
 use rajadordev\autoupdater\api\plugin\PluginSerialized;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
@@ -109,6 +110,15 @@ class UpdateCheckResult extends DynamicObject
     public function isUpdating() : bool 
     {
         return $this->updating;
+    }
+
+    public function createHistory(PluginVersionInfo $from, PluginVersionInfo $to) : UpdateRecord
+    {
+        return new UpdateRecord(
+            $from,
+            $to,
+            microtime(true)
+        );
     }
 
     protected function serializeExtraData(): array

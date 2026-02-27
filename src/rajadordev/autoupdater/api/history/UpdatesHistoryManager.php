@@ -51,7 +51,7 @@ final class UpdatesHistoryManager extends ObjectSerializableList
         $this->registerUpdates($obj, false);
     }
 
-    protected function registerUpdates(PluginUpdatesList $list, bool $save) 
+    public function registerUpdates(PluginUpdatesList $list, bool $save) 
     {
         if (isset($this->updates[$plugin = $list->getPluginName()])) {
             throw new InvalidArgumentException("Plugin $plugin is already registered in updates list");

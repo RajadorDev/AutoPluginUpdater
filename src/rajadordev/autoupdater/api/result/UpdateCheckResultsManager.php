@@ -22,7 +22,9 @@ namespace rajadordev\autoupdater\api\result;
 use InvalidArgumentException;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
+use rajadordev\autoupdater\api\history\UpdatesHistoryManager;
 use rajadordev\autoupdater\api\logger\AutoPluginUpdaterLogger;
+use rajadordev\autoupdater\api\plugin\PluginSerialized;
 use rajadordev\autoupdater\api\plugin\PluginVersionInfo;
 use rajadordev\autoupdater\Loader;
 use rajadordev\autoupdater\utils\AutoUpdaterUtils;
@@ -102,17 +104,28 @@ class UpdateCheckResultsManager extends ObjectSerializableList
 
     public function checkUpdatesInstalled()
     {
-        $logger = Loader::getInstance()->getLogger();
-        $logger->info("Checking plugins updated at the last restart...");
+        $pluginLogger = Loader::getInstance()->getLogger();
+        $pluginLogger->info("Checking plugins updated at the last restart...");
         $mustToSave = false;
+        $pluginsUpdated = 0;
         foreach ($this->updateResults as $result) {
-            if ($result->isUpdating()) {
+            if ($result->isUpdating() && $result->getLatestVersion() instanceof PluginSerialized) {
                 try {
                     if ($plugin = Server::getInstance()->getPluginManager()->getPlugin($result->getCheckedVersion()->getPluginName())) {
-                        if (!$result->getLatestVersion()->getVersion()->isNewestThan(PluginVersionInfo::from($plugin), true)) {
+                        $latestVersion = $result->getLatestVersion()->getVersion();
+                        if (!$latestVersion->isNewestThan(PluginVersionInfo::from($plugin), true)) {
                             $mustToSave = true;
                             $result->setUpdating(false);
                             AutoPluginUpdaterLogger::getInstance()->notice("Plugin {$plugin->getName()} updated successfully: \n{$result->getLatestVersion()->getVersion()->infoText()}\n ");
+
+                            UpdatesHistoryManager::getInstance()->getOrCreateUpdatesList($plugin)
+                            ->push(
+                                $result->createHistory(
+                                    $result->getCheckedVersion(),
+                                    $latestVersion
+                                )
+                            );
+                            $pluginsUpdated += 1;
                         }
                     }
                 } catch (Throwable $error) {
@@ -123,8 +136,10 @@ class UpdateCheckResultsManager extends ObjectSerializableList
 
         if ($mustToSave) {
             $this->save();
+            UpdatesHistoryManager::getInstance()->save();
+            AutoPluginUpdaterLogger::getInstance()->info("$pluginsUpdated plugins was updated");
         } else {
-            $logger->info("Nothing to be checked from the last restart");
+            $pluginLogger->info("Nothing to be checked from the last restart");
         }
     }
 
