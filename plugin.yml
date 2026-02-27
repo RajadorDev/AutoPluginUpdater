@@ -17,5 +17,5 @@ permissions:
     default: op
   apu.command.version:
     description: 'Allows player to see the latest version of AutoPluginUpdater'
-    default: op
+    default: true
 ...
