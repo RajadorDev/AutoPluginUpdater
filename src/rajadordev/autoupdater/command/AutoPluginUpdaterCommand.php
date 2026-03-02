@@ -21,6 +21,7 @@ namespace rajadordev\autoupdater\command;
 
 use pocketmine\command\CommandSender;
 use rajadordev\autoupdater\command\subcommand\SetGitTokenSubCommand;
+use rajadordev\autoupdater\command\subcommand\UnsetGitHubSubCommand;
 use rajadordev\autoupdater\command\subcommand\VersionSubCommand;
 use rajadordev\autoupdater\Loader;
 use SmartCommand\command\CommandArguments;
@@ -39,7 +40,8 @@ class AutoPluginUpdaterCommand extends SmartCommand
         $this->setPrefix(Loader::PREFIX);
         $this->registerSubCommands([
             new VersionSubCommand($this, 'version', 'Shows APU version', ['ver']),
-            new SetGitTokenSubCommand($this, 'setghtoken', 'Set the GitHub token')
+            new SetGitTokenSubCommand($this, 'setghtoken', 'Set the GitHub token'),
+            new UnsetGitHubSubCommand($this, 'unsetghtoken', 'Delete github token', ['deleteghtoken'])
         ]);
     }
 
