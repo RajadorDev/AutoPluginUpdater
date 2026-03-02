@@ -141,7 +141,12 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
         if ($this->lastRequestIdentifier) {
             $header[] = "If-None-Match: $this->lastRequestIdentifier";
         }
+
         $header[] = 'User-Agent: AutoPluginUpdater/1.0';
+
+        if ($this->threadSafeGitToken) {
+            $header[] = 'Authorization: Bearer ' . $this->threadSafeGitToken;
+        }
 
         $outHeaders = [];
         $repositoryUrl = $this->repository->getReleasesUrl();
@@ -183,6 +188,8 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 
         $latestVersion = $currentVersionInfo;
 
+        var_dump($repositoryUrl);
+
         foreach ($releasesList as $release) {
 
             if (!$allowPreReleases && $release['prerelease']) {
@@ -218,17 +225,15 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 
     public function onPrepareCheck(PluginUpdaterChecker $checker)
     {
-        /** @var GitHubReleaseInfo */
-        $version = $this->getCurrentVersion();
-        $this->lastRequestIdentifier = $checker->getExtraApiValue($version->getLastRequestId());
+        $this->lastRequestIdentifier = $checker->getExtraApiValue(self::DATA_GITHUB_LAST_REQUEST);
         $this->threadSafeGitToken = self::$gitHubToken;
     }
 
     public function onPostCheck(PluginUpdaterChecker $api)
     {
-        /** @var GitHubReleaseInfo */
-        $version = $this->getCurrentVersion();
-        $api->setExtraApiValue($version->getLastRequestId(), $this->lastRequestIdentifier, true);
+        if ($this->lastRequestIdentifier) {
+            $api->setExtraApiValue(self::DATA_GITHUB_LAST_REQUEST, $this->lastRequestIdentifier, true);
+        }
     }
 
     protected function serializeExtraData(): array

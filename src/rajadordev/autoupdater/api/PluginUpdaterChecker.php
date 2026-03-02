@@ -171,6 +171,11 @@ class PluginUpdaterChecker
             $content = file_get_contents($path);
             $this->extraRecords = json_decode($content, true);
         }
+
+        /** I will delete the old wrong files */
+        if (file_exists($wrongPath = Loader::getInstance()->getPluginsApiDir() . $this->getPluginName() . '_.json')) {
+            unlink($wrongPath);
+        }
     }
 
     public function infoText() : string 

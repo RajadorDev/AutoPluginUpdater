@@ -89,11 +89,6 @@ class GitHubReleaseInfo extends PluginVersionInfo
         return null;
     }
 
-    public function getLastRequestId() : string 
-    {
-        return $this->getId() . ':' . GitHubPluginUpdaterAPI::DATA_GITHUB_LAST_REQUEST;
-    }
-
     public static function fetchAssetFile(string $url) : string 
     {
         $curl = curl_init($url);
