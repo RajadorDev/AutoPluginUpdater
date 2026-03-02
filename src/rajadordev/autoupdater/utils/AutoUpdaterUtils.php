@@ -56,6 +56,7 @@ class AutoUpdaterUtils
      */
     public static function removeMajorVersion(string $version) : string 
     {
+        $version = self::clearVersion($version);
         $splitedVersion = explode('.', $version);
         array_shift($splitedVersion);
         return implode('.', $splitedVersion);
