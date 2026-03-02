@@ -188,8 +188,6 @@ class GitHubPluginUpdaterAPI extends PluginUpdaterAPI
 
         $latestVersion = $currentVersionInfo;
 
-        var_dump($repositoryUrl);
-
         foreach ($releasesList as $release) {
 
             if (!$allowPreReleases && $release['prerelease']) {
