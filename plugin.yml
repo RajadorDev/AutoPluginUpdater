@@ -6,7 +6,7 @@ discord: rajadortv
 api: 2.0.0
 depend:
   - SmartCommand
-version: 1.2.0
+version: 1.2.1
 main: rajadordev\autoupdater\Loader
 permissions:
   apu.command.main:
