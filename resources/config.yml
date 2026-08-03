@@ -13,7 +13,7 @@ restart-when-update: true
 restart-screen-text: "O servidor está sendo atualizado...."
 
 # Ativa/Desativa a atualização para versões em beta (pre-releases)
-allow-pre-releases: true
+allow-pre-releases: false
 
 # Ativa/Desativa a checagem de atualização assincrona (recomendado, caso contrario o servidor ficará inativo até completar a checagem)
 async-check: true
