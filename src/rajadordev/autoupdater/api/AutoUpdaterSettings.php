@@ -38,7 +38,7 @@ class AutoUpdaterSettings
 
     const AUTO_UPDATE_RESTART = 'restart-when-update';
 
-    const ALLOW_PRE_RELEASES = 'major-updates';
+    const ALLOW_PRE_RELEASES = 'allow-pre-releases';
 
     use SingletonTrait;
 
